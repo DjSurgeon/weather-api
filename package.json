@@ -1,0 +1,21 @@
+{
+  "name": "wheather-api",
+  "version": "1.0.0",
+  "description": "Este proyecto implementa una API REST que proporciona datos meteorológicos utilizando una API de terceros (Visual Crossing) con caché Redis para optimizar el rendimiento.",
+  "main": "index.js",
+  "scripts": {
+  "start": "node src/app.js",
+  "dev": "nodemon src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
