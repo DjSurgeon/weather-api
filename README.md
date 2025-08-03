@@ -181,6 +181,9 @@ RATE_LIMIT_MAX=
 | `app.get('/')`                       | Ruta GET simple para comprobar que el servidor funciona.                                                 |
 | `app.listen(PORT)`                   | Arranca el servidor y lo deja escuchando en el puerto definido.                                          |
 
+![alt text](readme-img/vscode1.png)
+![alt text](readme-img/vscode2.png)
+
 ## Fase 3: Integración con la API
 
 ### Crear servicio para la API
@@ -213,6 +216,51 @@ RATE_LIMIT_MAX=
 | `timestamp: new Date().toISOString()`   | Se añade fecha/hora ISO a cada respuesta para trazabilidad.         |
 | `400/404/500` según el caso             | La API responde con los códigos correctos para cada situación.      |
 
+![alt text](readme-img/vscode3.png)
+![alt text](readme-img/vscode4.png)
+![alt text](readme-img/vscode5.png)
+![alt text](readme-img/vscode6.png)
+
+## Fase 4: Implementar Cache con Redis
+
+### Instalar y configurar Redis
+
+- Instalar Redis local
+- `npm install redis`
+- Probar conexión
+
+| Línea de código | ¿Qué hace? |
+| --------------- | ---------- |
+| `redis.createClient({...})` | Crea una nueva instancia del cliente Redis.  |
+| `redisClient.on('error', ...)` | Muestra errores si la conexión falla o se interrumpe. |
+| `redisClient.on('connect', ...)` | Muestra mensaje de éxito al establecer conexión. |
+| `redisClient.connect()` | Establece la conexión con Redis (promesa). |
+
+![alt text](readme-img/vscode7.png)
+![alt text](readme-img/vscode8.png)
+
+### Crear servicio de cache
+
+- Modulo `cacheService.js`
+- Crear archivo en `/services/cacheService.js`
+- Funciones `getCache`, `setCache`, `deleteCache`
+- Configurar TTL (12 horas, por defecto 43200 segundos)
+- Manejar errores de Redis
+- Test independiente.
+
+| Línea de código | ¿Qué hace? |
+| --------------- | ---------- |
+| `await redisClient.set(key, JSON.stringify(value), { EX: ttl });` | Almacena el valor serializado con expiración. |
+| `const data = await redisClient.get(key);` | Recupera la cadena asociada a una clave. |
+| `return data ? JSON.parse(data) : null;` | Devuelve el objeto original si existe en caché. |
+| `await redisClient.del(key);` | Elimina manualmente la clave de Redis. |
+
+![alt text](readme-img/vscode9.png)
+![alt text](readme-img/vscode10.png)
+![alt text](readme-img/vscode11.png)
+
+
+
 
 <hr>
 
@@ -229,6 +277,13 @@ Una API es como un "contrato" o "menú" que define cómo dos programas pueden co
 REST es un estilo arquitectónico que usa métodos HTTP estándar. Define un conjunto de limitaciones y directrices para que los sistemas distribuidos, como las aplicaciones web, puedan comunicarse de manera eficiente y escalable.
 
 Es como tener reglas claras sobre cómo pedir cosas: GET para obtener, POST para crear, PUT para actualizar, DELETE para eliminar.
+
+### Arquitectura Cliente-Servidor (Client-Server Architecture)
+
+La arquitectura cliente-servidor es un modelo de diseño de red fundamental en el que las tareas y las cargas de trabajo se distribuyen entre dos tipos de componentes: los clientes y los servidores. Este modelo es la base de la gran mayoría de las aplicaciones y servicios modernos, desde sitios web hasta aplicaciones móviles y bases de datos.
+
+- **Cliente**: Es un dispositivo o aplicación (como un navegador web, una app de móvil o un programa de escritorio) que solicita servicios o recursos. El cliente se encarga de la interfaz de usuario, la interacción y de enviar peticiones al servidor.
+- **Servidor**: Es un ordenador o programa potente y centralizado que proporciona servicios, recursos y datos a los clientes. Los servidores procesan las peticiones de los clientes y les devuelven las respuestas correspondientes.
 
 ### Caché (Sistema de Almacenamiento Temporal)
 
@@ -321,6 +376,16 @@ El bloque de código `try...catch` es una estructura fundamental en la programac
 
 Imagina que intentas abrir un archivo para leer su contenido. Si el archivo no existe, el programa se detendría con un error. Con `try...catch`, en el bloque `try` intentarías abrir el archivo. Si el archivo no se encuentra, el programa no se detiene; en cambio, el control pasa al bloque `catch`. Dentro de `catch`, puedes decirle al programa qué hacer, como mostrar un mensaje al usuario que diga "El archivo no se encontró" o crear un archivo nuevo. Esto evita que tu aplicación se bloquee y garantiza que pueda seguir funcionando incluso si algo inesperado sucede.
 
+### La sentencia `throw`
+
+La sentencia `throw` se utiliza en JavaScript para lanzar explícitamente una excepción o un error. Cuando se ejecuta `throw`, el flujo normal del programa se interrumpe y se transfiere el control al bloque `catch` más cercano en la pila de llamadas. Si no hay un bloque `catch` para manejar la excepción, el programa se detendrá por completo, lo que resultará en un error no capturado.
+
+#### ¿Por qué usar `throw`?
+
+- **Propagación de errores**: En lugar de simplemente registrar un error en la consola y continuar con una ejecución potencialmente errónea, `throw` asegura que el problema se propague hacia arriba. Esto permite que el código que llamó a la función decida cómo manejar la situación. Por ejemplo, si tu función setCache falla, al usar `throw` el código principal de tu API (donde se hace la llamada) puede detectar este problema y enviar una respuesta de error adecuada al cliente (como un 500 Internal Server Error).
+- **Control en el llamador**: La propagación de errores le da al desarrollador un control total sobre las consecuencias de un fallo. El código que llama a tu función getWeather puede decidir si el error de caché es fatal (y detener el programa) o si puede recuperarse de alguna manera.
+- **Depuración efectiva**: Al lanzar errores específicos y descriptivos, como `throw new Error('Conexión a Redis perdida')`, los desarrolladores pueden identificar rápidamente la causa de los fallos en la aplicación, lo que es invaluable durante la depuración y en entornos de producción.
+
 ### Códigos de Estado HTTP (HTTP Status Codes)
 
 Los códigos de estado HTTP son una serie de códigos numéricos estandarizados que un servidor web envía en la respuesta a una solicitud HTTP de un cliente. Estos códigos le indican al cliente si la solicitud ha sido procesada con éxito o si ha ocurrido algún problema. Son esenciales para que las APIs puedan comunicarse de manera clara y universal con cualquier aplicación que las utilice. Aquí están algunos de los más comunes y utilizados:
@@ -341,6 +406,12 @@ Los códigos de estado HTTP son una serie de códigos numéricos estandarizados 
 
 - **500 Internal Server Error**: Ha ocurrido un error inesperado en el servidor que impidió que la solicitud se completara. Este es un error genérico del servidor que indica que algo salió mal en la lógica del backend, y no es culpa del cliente.
 - **503 Service Unavailable**: El servidor no está listo para manejar la solicitud, a menudo debido a un sobrecarga o a que está en mantenimiento. Es una respuesta temporal que sugiere que el cliente debería reintentar la solicitud más tarde.
+
+### Caching con Redis (Caching using Redis)
+
+El caching con Redis es una estrategia de optimización que utiliza Redis, una base de datos en memoria ultrarrápida, para almacenar temporalmente los resultados de operaciones costosas (como las llamadas a una API externa). El objetivo es reducir la latencia, la carga del servidor y la cantidad de solicitudes a los servicios externos. Cuando una aplicación necesita datos, primero verifica si la información ya está en la caché de Redis. Si la encuentra, la devuelve de inmediato (un "cache hit"), lo que es mucho más rápido que volver a solicitar los datos al servicio original.
+
+Una característica clave de Redis para el caching es su soporte para TTL (Time To Live). Esto permite que los datos almacenados en la caché tengan una fecha de caducidad. Una vez que el TTL expira, Redis elimina automáticamente los datos, asegurando que la información no se vuelva obsoleta.
 
 ## Tips y Buenas prácticas
 
