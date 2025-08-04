@@ -259,7 +259,23 @@ RATE_LIMIT_MAX=
 ![alt text](readme-img/vscode10.png)
 ![alt text](readme-img/vscode11.png)
 
+### Implementar lógica de cache
 
+- Cache-first strategy en el endpoint
+- Verificar cache primero
+- Si no existe, llamar API
+- Guardar resultado en cache
+- Retornar datos
+
+| Línea de código | ¿Qué hace? |
+| --------------- | ---------- |
+| `const cachedKey = weather:${city.toLowerCase()}`; | Genera una clave única para Redis basada en la ciudad (en minúsculas). |
+| `const cachedData = await getCache(cachedKey);` | Intenta obtener datos desde Redis antes de ir a la API. |
+| `if (cachedData)` | Si existen datos en caché, los transforma y los devuelve al cliente. |
+| `await fetchWeatherData(city);` | Llama a la API externa si no hay datos en Redis. |
+| `await setCache(cachedKey, weatherData);` | Guarda los datos nuevos en Redis con TTL definido. |
+| `transformedData(...)` | Formatea la estructura de la respuesta según lo esperado por el frontend. |
+| `res.status(200).json({ ... })` | Devuelve la respuesta al cliente con fuente (`source`), datos y timestamp. |
 
 
 <hr>
