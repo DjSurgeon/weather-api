@@ -15,7 +15,10 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const weatherRoutes = require('./routes/weather');
+const { generalLimiter, cityLimiter } = require('./middlewares/rateLimiter');
 
+app.use(generalLimiter);
+app.use('/weather', cityLimiter, weatherRoutes);
 app.use('/', weatherRoutes);
 
 /**

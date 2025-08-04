@@ -277,6 +277,30 @@ RATE_LIMIT_MAX=
 | `transformedData(...)` | Formatea la estructura de la respuesta según lo esperado por el frontend. |
 | `res.status(200).json({ ... })` | Devuelve la respuesta al cliente con fuente (`source`), datos y timestamp. |
 
+![alt text](readme-img/vscode12.png)
+
+## Fase 5: Seguridad y Rate Limiting
+
+### Implementar rate limiting
+
+- Usar express-rate-limit
+- `npm install express-rate-limit`
+- Configurar límite por IP
+- Mensajes de error personalizados
+- Diferentes límites por endpoint
+
+| Línea de código | ¿Qué hace? |
+| --------------- | ---------- |
+| `rateLimit({...})` | Crea middleware con ventanas de tiempo, límites y mensajes personalizados. |
+| `windowMs` | Define cuánto dura la ventana de tiempo (ej. 10 min = 600000 ms). |
+| `max` | Máximo número de peticiones permitidas por IP en esa ventana. |
+| `app.use(generalLimiter)` | Aplica el límite global a toda la app. |
+| `app.use('/api/weather', weatherLimiter, weatherRouter)` | Aplica un límite específico más estricto al endpoint `/api/weather`. |
+
+![alt text](readme-img/vscode13.png)
+
+
+
 
 <hr>
 
