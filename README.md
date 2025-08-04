@@ -299,6 +299,28 @@ RATE_LIMIT_MAX=
 
 ![alt text](readme-img/vscode13.png)
 
+### Validación de entrada
+
+- Usar express-validator
+- Validar formato de ciudad
+- Sanitizar strings
+- Prevenir injection attacks
+
+| Línea de código | ¿Qué hace? |
+| --------------- | ---------- |
+| `param('city')` | Extrae el parámetro dinámico `:city` desde la URL para aplicar validaciones. |
+| `.notEmpty().withMessage('...')` | Verifica que el campo no esté vacío y devuelve un mensaje si lo está. |
+| `.isString().withMessage('...')` | Comprueba que el valor recibido es un string. |
+| `.trim()` | Elimina espacios en blanco al inicio y final del string. |
+| `.toLowerCase()` | Convierte todo el valor a minúsculas para normalizar la entrada. |
+| `.isLength({ min: 2, max: 25 })` | Restringe la longitud de la ciudad entre 2 y 25 caracteres. |
+| `.matches(/^[a-zA-Z\u0080-\u024F\s\/\-\)\(\`."']+\$/i)\` | Asegura que la ciudad solo contenga letras, acentos, espacios y algunos signos válidos. |
+| `.escape()` | Escapa caracteres peligrosos (`<`, `>`, `&`, `"`, `'`) para prevenir inyecciones. |
+| `validationResult(req)` | Recolecta los errores generados por las validaciones anteriores. |
+| `if (!errors.isEmpty()) { ... }` | Si hay errores, responde con `400 Bad Request` y muestra los detalles. |
+| `next()` | Si no hay errores, pasa al siguiente middleware o controlador. |
+
+![alt text](readme-img/vscode14.png)
 
 
 

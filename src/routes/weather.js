@@ -12,6 +12,7 @@
 const express = require('express');
 const router = express.Router();
 const { getWeatherData } = require('../controllers/weatherController');
+const validateCity = require('../middlewares/validateCity')
 
 /**
  * @brief GET route to the fetch weather data for a specific city.
@@ -19,6 +20,6 @@ const { getWeatherData } = require('../controllers/weatherController');
  * This route calls the getWeatheData controller function to handle the request.
  * The URL parameter is then accessible via `req.params.city` in the controller.
  */
-router.get('/weather/:city', getWeatherData);
+router.get('/:city', validateCity, getWeatherData);
 
 module.exports = router;

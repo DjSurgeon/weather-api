@@ -17,16 +17,15 @@ const PORT = process.env.PORT || 3000;
 const weatherRoutes = require('./routes/weather');
 const { generalLimiter, cityLimiter } = require('./middlewares/rateLimiter');
 
-app.use(generalLimiter);
-app.use('/weather', cityLimiter, weatherRoutes);
-app.use('/', weatherRoutes);
-
 /**
  * @brief Middleware to parse incoming JSON request.
  * @details This built-in middleware parses the `Content-Type: application/json`
  * header and makes the parsed JSON data available.
  */
 app.use(express.json());
+
+app.use(generalLimiter);
+app.use('/weather', cityLimiter, weatherRoutes);
 
 /**
  * @brief Middleware for logging incoming HTTP request.
