@@ -1,6 +1,7 @@
 # Weather API
 
 Una API REST en Node.js/Express que provee datos meteorológicos por ciudad, consumiendo la API de Visual Crossing y usando Redis para caché.
+Este proyecto pertenece a los ejemplos publicados en [Roadmap.sh](https://roadmap.sh/projects/weather-api-wrapper-service).
 
 ## Características
 
