@@ -3,7 +3,7 @@
  * @brief Configures and exports Redis client with connection handling.
  * @author Sergio Jiménez de la Cruz
  * @date August 2, 2025
- * @version 0.1.0
+ * @version 1.0.0
  * @license MIT
  */
 

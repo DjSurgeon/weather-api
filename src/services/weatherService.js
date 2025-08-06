@@ -3,7 +3,7 @@
  * @brief This module provides functions for fetching and processing weather data from the Visual Crossing API.
  * @author Sergio Jiménez de la Cruz
  * @date August 1, 2025
- * @version 0.1.0
+ * @version 1.0.0
  * @license MIT
  */
 
@@ -23,7 +23,10 @@ const API_KEY = process.env.API_KEY;
 const fetchWeatherData = async (city) => {
 	try {
 		if (!city) {
-			throw new Error('city name is required');
+			throw new Error('City name is required');
+		}
+		if (!API_KEY) {
+			throw new Error('Missing Visual Crossing API_KEY environment variable');
 		}
 		const url = `${BASE_URL}${encodeURIComponent(city)}?key=${API_KEY}&unitGroup=metric`;
 		const response = await axios.get(url);
@@ -31,9 +34,9 @@ const fetchWeatherData = async (city) => {
 	} catch (error) {
 		console.error('Error:', error.message);
 		if (error.response) {
-			throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || 'Unknow Error'}`);
+			throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || 'Unknown Error'}`);
 		} else if (error.request) {
-			throw new Error('Conection Error');
+			throw new Error('Connection Error');
 		} else {
 			throw new Error(`Internal error: ${error.message}`);
 		}
@@ -41,17 +44,16 @@ const fetchWeatherData = async (city) => {
 };
 
 /**
- * @brief Transforms the raw API response into a clean, simpolified data object.
+ * @brief Transforms the raw API response into a clean, simplified data object.
  * @param {object} rawData - The raw data object returned from the Visual Crossing API.
  * @returns {object} A simplified weather data object.
  * @throws {Error} Throws an error if the raw data is invalid or incomplete.
  */
 const transformedData = (rawData) => {
-	const dayData = rawData.days[0];
-	if (!rawData || !dayData)
-	{
+	if (!rawData || rawData.days.length === 0) {
 		throw new Error('No weather data available');
 	}
+	const dayData = rawData.days[0];
 	return {
 		city: rawData.resolvedAddress,
 		latitude: rawData.latitude,

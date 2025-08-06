@@ -4,7 +4,7 @@
  * @details It handles incoming request, validates parameters, and orcestrates calls to the weather service.
  * @author Sergio Jiménez de la Cruz
  * @date August 1, 2025
- * @version 0.1.0
+ * @version 1.0.0
  * @license MIT
  * @see {@link ../services/weatherService.js} For data fetching and transformation logic.
  * @see {@link ../services/cacheService.js} For Redis caching operations.
@@ -28,7 +28,7 @@ const getWeatherData = async (req, res) => {
 			message: 'City name is required and must be a valid string.'
 		});
 	};
-	const cachedKey = `weather:${city.toLowerCase()}`;
+	const cachedKey = `weather:${city.toLowerCase().trim()}`;
 	try {
 		const cachedData = await getCache(cachedKey);
 		if (cachedData) {
@@ -50,7 +50,7 @@ const getWeatherData = async (req, res) => {
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
-		console.error(`[WeatherController] Failed to fetch dataa for city: ${city}`);
+		console.error(`[WeatherController] Failed to fetch data for city: ${city}`);
 		return res.status(500).json({
 			error: 'Internal server error',
 			message: error.message

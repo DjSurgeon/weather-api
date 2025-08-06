@@ -4,7 +4,7 @@
  * @details this module defines different rate limiters to protect the API from excessive request, preventing abuse and potential denial-of-service attacks.
  * @author Sergio Jiménez de la Cruz
  * @date August 4, 2025
- * @version 0.1.0
+ * @version 1.0.0
  * @license MIT
 */
 
@@ -21,19 +21,18 @@ const RATE_LIMIT_CITY = process.env.RATE_LIMIT_CITY || 10 * 60 * 1000;
  * @details Limits a single IP to `RATE_LIMIT_MAX` request within a `RATE_LIMIT_WINDOW` time frame.
  * @type {Function}
  */
-let count = 0;
 const generalLimiter = rateLimit(
 	{
 		windowMs: RATE_LIMIT_WINDOW,
-	max: RATE_LIMIT_MAX,
-	standardHeaders: true,
-	legacyHeaders: false,
-	message: {
-		status: 'fail',
-		statusCode: 429,
-		error: 'Too many request',
-		message: 'Rate Limit exceed'
-	},
+		max: RATE_LIMIT_MAX,
+		standardHeaders: true,
+		legacyHeaders: false,
+		message: {
+			status: 'fail',
+			statusCode: 429,
+			error: 'Too many requests',
+			message: 'Rate Limit exceeded'
+		},
 });
 
 /**
@@ -51,8 +50,8 @@ const cityLimiter = rateLimit({
 	message: {
 		status: 'fail',
 		statusCode: 429,
-		error: 'Too many request',
-		message: 'Rate Limit exceed'
+		error: 'Too many requests',
+		message: 'Rate Limit exceeded'
 	}
 });
 

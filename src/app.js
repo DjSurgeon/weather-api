@@ -1,10 +1,10 @@
 /**
  * @file app.js
- * @brief Main entry point for the wheather API.
+ * @brief Main entry point for the weather API.
  * @details This file initializes the Express application, configures middleware, and registers the API routes.
  * @author Sergio Jiménez de la Cruz
  * @date July 31, 2025
- * @version 0.1.0
+ * @version 1.0.0
  * @license MIT
  * @see {@link ./routes/weather.js} For the weather API routes.
  */
@@ -16,6 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const weatherRoutes = require('./routes/weather');
 const { generalLimiter, cityLimiter } = require('./middlewares/rateLimiter');
+const setupSecurityMiddleware = require('./middlewares/security');
 
 /**
  * @brief Middleware to parse incoming JSON request.
@@ -24,8 +25,7 @@ const { generalLimiter, cityLimiter } = require('./middlewares/rateLimiter');
  */
 app.use(express.json());
 
-app.use(generalLimiter);
-app.use('/weather', cityLimiter, weatherRoutes);
+setupSecurityMiddleware(app);
 
 /**
  * @brief Middleware for logging incoming HTTP request.
@@ -36,14 +36,18 @@ app.use('/weather', cityLimiter, weatherRoutes);
  * It's useful for debugging and monitoring.
  */
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()} ${req.method} ${res.originalUrl}]`);
+    console.log(`[${new Date().toISOString()} ${req.method} ${req.originalUrl}]`);
     next();
 });
+
+app.use(generalLimiter);
+app.use('/weather', cityLimiter, weatherRoutes);
+
 
 /**
  * @brief Defines a welcome route for the root endpoint.
  * @details Responds with a welcome message and list available API endpoints.
- * This is a good starting point for users to undestand what the API offers.
+ * This is a good starting point for users to understand what the API offers.
  * @param {object} req - The Express request object.
  * @param {object} res - The Express response object.
  */
@@ -51,7 +55,8 @@ app.get('/', (req, res) => {
     res.json({
         message: 'Weather API is running',
         endpoints: {
-            status: '/status'
+            status: '/status',
+            city: '/weather/:city'
         }
     });
 });
@@ -61,7 +66,7 @@ app.get('/', (req, res) => {
  * @details Provides the current status of the API, environment, and a timestamp.
  * This endpoint is useful for health checks and monitoring.
  * @param {object} req - The Express request object.
- * @param {object} res - The Espress response object.
+ * @param {object} res - The Express response object.
  */
 app.get('/status', (req, res) => {
     res.json({
@@ -74,7 +79,7 @@ app.get('/status', (req, res) => {
 /**
  * @brief Handles request to undefined routes (404 not found).
  * @details This middleware should be placed at the end of all route definitions.
- * If a request reaches this point, it means no other route has haandled it.
+ * If a request reaches this point, it means no other route has handled it.
  * @param {object} req - The Express request object.
  * @param {object} res - The Express response object.
  * @param {function} next - The next middleware function (not used,
@@ -83,19 +88,19 @@ app.get('/status', (req, res) => {
 app.use((req, res, next) =>{
     res.status(404).json({
         error: 'route not found',
-        message: `the route ${req.originalUrl} doesn't exit in the server`
+        message: `the route ${req.originalUrl} doesn't exits on the server`
     });
 });
 
 /**
  * @brief Global error handling middleware.
- * @details This middleware catches any errors that occurs during request processing.
+ * @details This middleware catches any errors that occur during request processing.
  * It logs the error and sends a generic 500 internal server error response to the client.
- * For production, avoid sending detailed error mesagges to clients for security reasons.
+ * For production, avoid sending detailed error messages to clients for security reasons.
  * @param {object} err - The error object.
  * @param {object} req - The Express request object.
  * @param {object} res - The Express response object.
- * @param {function} next - The next middleware function (uses to pass the
+ * @param {function} next - The next middleware function (used to pass the
  * error if not handled here).
  */
 app.use((err, req, res, next) => {
